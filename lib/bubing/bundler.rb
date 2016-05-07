@@ -10,11 +10,13 @@ module Bubing
     PATH_RE = /=> (.+?(?=\())/
     RUN_TEMPLATE = 'LD_LIBRARY_PATH=./lib ./lib/%{interpreter} ./bin/%{binary}'
 
-    def initialize(binary, directory, plugins: [], plugin_dirs: [], verbose: false)
+    def initialize(binary, directory, plugins: [], plugin_dirs: [], files: [], file_dirs: [], verbose: false)
       @binary = binary
       @directory = directory
       @plugins = plugins
       @plugin_dirs = plugin_dirs
+      @files = files
+      @file_dirs = file_dirs
       @verbose = verbose
       @interpreter = interpreter(binary)
       @bin_dir = File.join(directory, 'bin')
@@ -28,10 +30,15 @@ module Bubing
       copy(@binary, @bin_dir)
       copy_deps(@binary)
       log('Copying plugins...')
-      log("#{@plugins.count} plugins must be bundled")
+      log("Plugins to bundle #{@plugins.count}")
       copy_plugins
-      log("#{@plugin_dirs.count} plugin dirs must be bundled")
+      log("Plugin dirs to bundle #{@plugin_dirs.count}")
       copy_plugin_dirs
+      log('Copying files...')
+      log("Files to bundle #{@files.count}")
+      copy_files(@files)
+      log("File dirs to bundle #{@file_dirs.count}")
+      copy_files(@file_dirs)
       log('Preparing run.sh...')
       run_file = make_run
 
@@ -105,6 +112,20 @@ module Bubing
     def copy_plugin_dirs
       @plugin_dirs.each do |plugin_dir|
         copy(plugin_dir, @lib_dir)
+        plugins = Dir[File.join(plugin_dir, '/**/*.so')]
+        plugins.each do |plugin|
+          copy_deps(plugin)
+        end
+      end
+    end
+
+    def copy_files(files)
+      files.each do |file|
+        file, dst = file.split('=')
+        dst = File.join(@directory, dst)
+
+        FileUtils.mkdir_p(dst)
+        copy(file, dst)
       end
     end
   end

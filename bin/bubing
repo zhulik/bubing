@@ -7,6 +7,9 @@ options = {}
 options[:plugins] = []
 options[:plugin_dirs] = []
 
+options[:files] = []
+options[:file_dirs] = []
+
 OptionParser.new do |opts|
   opts.banner = 'Usage: bubing [options] BINARY DIRECTORY'
 
@@ -20,8 +23,18 @@ OptionParser.new do |opts|
   end
 
   opts.on('-P', '--plugin_directory PATH',
-          'Add directory with additinal libs, eg plugin directory') do |plugin_dir|
+          'Add directory with additional libs, eg plugin directory') do |plugin_dir|
     options[:plugin_dirs] << plugin_dir
+  end
+
+  opts.on('-f', '--file FILE=PATH',
+          'Add additional file, eg config') do |file|
+    options[:files] << file
+  end
+
+  opts.on('-F', '--file_directory PATH=PATH',
+          'Add directory with additional files, eg configs') do |file_dir|
+    options[:file_dirs] << file_dir
   end
 end.parse!
 
