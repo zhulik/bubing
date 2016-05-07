@@ -42,4 +42,8 @@ if options[:verbose]
   puts "Bundling #{filename} to #{directory}"
 end
 
-Bubing.bundle!(filename, directory, **options)
+begin
+  Bubing::Bundler.new(filename, directory, **options).bundle!
+rescue Bubing::BundlingError
+  exit(1)
+end
