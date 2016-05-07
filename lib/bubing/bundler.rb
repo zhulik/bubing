@@ -6,11 +6,10 @@ module Bubing
   end
 
   class Bundler
-    INTERPRETER_RE = /interpreter (.+?(?=,))/
     PATH_RE = /=> (.+?(?=\())/
-    RUN_TEMPLATE = 'LD_LIBRARY_PATH=./lib ./lib/%{interpreter} ./bin/%{binary}'
 
-    def initialize(binary, directory, plugins: [], plugin_dirs: [], files: [], file_dirs: [], ld_paths: [], verbose: false)
+    def initialize(binary, directory, plugins: [], plugin_dirs: [], files: [], file_dirs: [], ld_paths: [], envs: [], verbose: false)
+
       @binary = binary
       @directory = directory
       @plugins = plugins
@@ -18,10 +17,18 @@ module Bubing
       @files = files
       @file_dirs = file_dirs
       @verbose = verbose
-      @interpreter = interpreter(binary)
+      @interpreter = Bubing::InterpreterDetector.new(binary).detect
       @bin_dir = File.join(directory, 'bin')
       @lib_dir = File.join(directory, 'lib')
       @ld_paths = ld_paths
+
+      @envs = envs.each_with_object({}) do |env, h|
+        k, v = env.split('=')
+        h[k] = v
+      end
+      if @envs['LD_LIBRARY_PATH'].nil?
+        @envs['LD_LIBRARY_PATH'] = './lib'
+      end
 
       @copied = []
     end
@@ -42,22 +49,12 @@ module Bubing
       copy_files(@files)
       log("File dirs to bundle #{@file_dirs.count}")
       copy_files(@file_dirs)
-      log('Preparing run.sh...')
-      run_file = make_run
-
-      FileUtils.chmod('+x', run_file)
-      log('Done!')
     rescue Bubing::DependencyNotFoundError => e
       puts "#{e.message} not found!"
       raise Bubing::BundlingError
     end
 
     private
-
-    def interpreter(binary)
-      result = `file #{binary}`
-      INTERPRETER_RE.match(result)[1]
-    end
 
     def extract_path(lib)
       if lib.include?('not found')
@@ -92,16 +89,6 @@ module Bubing
       deps = get_deps(binary)
       log("#{deps.count} dependencies found")
       copy(deps, @lib_dir)
-    end
-
-    def make_run
-      run_file = File.join(@directory, 'run.sh')
-      run = RUN_TEMPLATE % {interpreter: File.basename(@interpreter), binary: File.basename(@binary)}
-      File.open(run_file, 'w') do |file|
-        file.write("#!/bin/bash\n")
-        file.write("#{run}\n")
-      end
-      run_file
     end
 
     def copy(files, dst)

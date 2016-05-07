@@ -11,6 +11,7 @@ options[:files] = []
 options[:file_dirs] = []
 
 options[:ld_paths] = []
+options[:envs] = []
 
 OptionParser.new do |opts|
   opts.banner = 'Usage: bubing [options] BINARY DIRECTORY'
@@ -43,6 +44,11 @@ OptionParser.new do |opts|
           'Look dependencies in PATH') do |ld_path|
     options[:ld_paths] << ld_path
   end
+
+  opts.on('-e', '--env VAR=VAL',
+          'Add environment variable to run.sh') do |env|
+    options[:envs] << env
+  end
 end.parse!
 
 if ARGV.count < 2
@@ -63,7 +69,7 @@ if options[:verbose]
 end
 
 begin
-  Bubing::Bundler.new(filename, directory, **options).bundle!
+  Bubing::BinaryBundler.new(filename, directory, **options).bundle!
 rescue Bubing::BundlingError
   exit(1)
 end
