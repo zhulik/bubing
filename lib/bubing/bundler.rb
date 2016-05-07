@@ -91,7 +91,6 @@ module Bubing
       log("Bundling #{binary}")
       deps = get_deps(binary)
       log("#{deps.count} dependencies found")
-      log('Copying dependencies...')
       copy(deps, @lib_dir)
     end
 
