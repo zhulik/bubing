@@ -21,6 +21,8 @@ module Bubing
       @interpreter = interpreter(binary)
       @bin_dir = File.join(directory, 'bin')
       @lib_dir = File.join(directory, 'lib')
+
+      @copied = []
     end
 
     def bundle!
@@ -98,8 +100,10 @@ module Bubing
     end
 
     def copy(files, dst)
-      files = [files].flatten.select{|file| !File.exist?(File.join(dst, File.basename(file)))}
+      files = [files].flatten.select{|f| !@copied.include?(File.basename(f))}
       FileUtils.cp_r(files, dst)
+      @copied += files.map{|f| File.basename(f)}
+      @copied.flatten
     end
 
     def copy_plugins
