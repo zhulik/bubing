@@ -8,7 +8,7 @@ module Bubing
   class Bundler
     INTERPRETER_RE = /interpreter (.+?(?=,))/
     PATH_RE = /=> (.+?(?=\())/
-    RUN_TEMPLATE = 'LD_LIBRARY_PATH=./ ./%{interpreter} ./%{binary}'
+    RUN_TEMPLATE = 'LD_LIBRARY_PATH=./lib ./lib/%{interpreter} ./bin/%{binary}'
 
     def initialize(binary, directory, plugins: [], plugin_dirs: [], verbose: false)
       @binary = binary
@@ -17,14 +17,21 @@ module Bubing
       @plugin_dirs = plugin_dirs
       @verbose = verbose
       @interpreter = interpreter(binary)
+      @bin_dir = File.join(directory, 'bin')
+      @lib_dir = File.join(directory, 'lib')
     end
 
     def bundle!
+      prepare_dir
       log("Interpreter is #{@interpreter}")
+      copy(@interpreter, @lib_dir)
+      copy(@binary, @bin_dir)
       copy_deps(@binary)
       log('Copying plugins...')
       log("#{@plugins.count} plugins must be bundled")
       copy_plugins
+      log("#{@plugin_dirs.count} plugin dirs must be bundled")
+      copy_plugin_dirs
       log('Preparing run.sh...')
       run_file = make_run
 
@@ -58,16 +65,19 @@ module Bubing
       puts message if @verbose
     end
 
+    def prepare_dir
+      FileUtils.rm_rf(Dir.glob(File.join(@directory, '*')))
+      FileUtils.mkdir_p(@directory)
+      FileUtils.mkdir_p(@bin_dir)
+      FileUtils.mkdir_p(@lib_dir)
+    end
+
     def copy_deps(binary)
-      log("Bundling $#{binary}")
+      log("Bundling #{binary}")
       deps = get_deps(binary)
       log("#{deps.count} dependencies found")
       log('Copying dependencies...')
-      FileUtils.rm_rf(Dir.glob(File.join(@directory, '*')))
-      FileUtils.mkdir_p(@directory)
-      FileUtils.cp(deps, @directory)
-      FileUtils.cp(@binary, @directory)
-      FileUtils.cp(@interpreter, @directory)
+      copy(deps, @lib_dir)
     end
 
     def make_run
@@ -80,9 +90,21 @@ module Bubing
       run_file
     end
 
+    def copy(files, dst)
+      files = [files].flatten.select{|file| !File.exist?(File.join(dst, File.basename(file)))}
+      FileUtils.cp_r(files, dst)
+    end
+
     def copy_plugins
       @plugins.each do |plugin|
+        copy(plugin, @lib_dir)
         copy_deps(plugin)
+      end
+    end
+
+    def copy_plugin_dirs
+      @plugin_dirs.each do |plugin_dir|
+        copy(plugin_dir, @lib_dir)
       end
     end
   end
