@@ -2,20 +2,43 @@ module Bubing
   class UnknownInterpreter < StandardError
   end
 
-  class InterpreterDetector
+  class UnknownType < StandardError
+  end
+
+  class BinaryInfo
     X86_32_RE = /ELF 32-bit/
     X86_64_RE = /ELF 64-bit/
+
+    EXECUTABLE_RE = /LSB executable/
+    SHARED_OBJECT_RE = /LSB shared object/
 
     X86_32_INTERPRETER = 'ld-linux.so'
     X86_64_INTERPRETER = 'ld-linux-x86-64.so'
 
+    attr_reader :interpreter, :type
+
     def initialize(binary)
       @binary = binary
+      @file_output = `file #{@binary}`
+      @interpreter = detect_interpreter
+      @type = detect_type
     end
 
-    def detect
-      file = `file #{@binary}`
-      case file
+    private
+
+    def detect_type
+      case @file_output
+        when EXECUTABLE_RE
+          :executable
+        when SHARED_OBJECT_RE
+          :shared_object
+        else
+          raise Bubing::UnknownType
+      end
+    end
+
+    def detect_interpreter
+      case @file_output
         when X86_32_RE
           x86_32_interpreter
         when X86_64_RE
@@ -24,8 +47,6 @@ module Bubing
           raise Bubing::UnknownInterpreter
       end
     end
-
-    private
 
     def x86_32_interpreter
       libs = Dir['/lib/*']

@@ -8,8 +8,7 @@ module Bubing
   class Bundler
     PATH_RE = /=> (.+?(?=\())/
 
-    def initialize(binary, directory, plugins: [], plugin_dirs: [], files: [], file_dirs: [], ld_paths: [], envs: [], verbose: false)
-
+    def initialize(binary, directory, interpreter:, plugins: [], plugin_dirs: [], files: [], file_dirs: [], ld_paths: [], envs: [], verbose: false)
       @binary = binary
       @directory = directory
       @plugins = plugins
@@ -17,8 +16,7 @@ module Bubing
       @files = files
       @file_dirs = file_dirs
       @verbose = verbose
-      @interpreter = Bubing::InterpreterDetector.new(binary).detect
-      @bin_dir = File.join(directory, 'bin')
+      @interpreter = interpreter
       @lib_dir = File.join(directory, 'lib')
       @ld_paths = ld_paths
 
@@ -36,8 +34,6 @@ module Bubing
     def bundle!
       prepare_dir
       log("Interpreter is #{@interpreter}")
-      copy(@interpreter, @lib_dir)
-      copy(@binary, @bin_dir)
       copy_deps(@binary)
       log('Copying plugins...')
       log("Plugins to bundle #{@plugins.count}")
@@ -52,6 +48,14 @@ module Bubing
     rescue Bubing::DependencyNotFoundError => e
       puts "#{e.message} not found!"
       raise Bubing::BundlingError
+    end
+
+    protected
+
+    def prepare_dir
+      FileUtils.rm_rf(Dir.glob(File.join(@directory, '*')))
+      FileUtils.mkdir_p(@directory)
+      FileUtils.mkdir_p(@lib_dir)
     end
 
     private
@@ -75,13 +79,6 @@ module Bubing
 
     def log(message)
       puts message if @verbose
-    end
-
-    def prepare_dir
-      FileUtils.rm_rf(Dir.glob(File.join(@directory, '*')))
-      FileUtils.mkdir_p(@directory)
-      FileUtils.mkdir_p(@bin_dir)
-      FileUtils.mkdir_p(@lib_dir)
     end
 
     def copy_deps(binary)

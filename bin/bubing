@@ -69,7 +69,7 @@ if options[:verbose]
 end
 
 begin
-  Bubing::BinaryBundler.new(filename, directory, **options).bundle!
+  Bubing::BundlerFactory.new.build(filename, directory, **options).bundle!
 rescue Bubing::BundlingError
   exit(1)
 end

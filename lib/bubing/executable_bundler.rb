@@ -1,9 +1,16 @@
 module Bubing
-  class BinaryBundler < Bubing::Bundler
+  class ExecutableBundler < Bubing::Bundler
     RUN_TEMPLATE = '%{envs} ./lib/%{interpreter} ./bin/%{binary}'
+
+    def initialize(*args)
+      super
+      @bin_dir = File.join(@directory, 'bin')
+    end
 
     def bundle!
       super
+      copy(@interpreter, @lib_dir)
+      copy(@binary, @bin_dir)
       log('Preparing run.sh...')
       run_file = make_run
 
@@ -21,6 +28,13 @@ module Bubing
         file.write("#{run}\n")
       end
       run_file
+    end
+
+    protected
+
+    def prepare_dir
+      super
+      FileUtils.mkdir_p(@bin_dir)
     end
   end
 end
