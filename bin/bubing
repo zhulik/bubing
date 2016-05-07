@@ -1,0 +1,45 @@
+#!/bin/env ruby
+
+require 'optparse'
+load 'lib/bubing.rb'
+
+options = {}
+options[:plugins] = []
+options[:plugin_dirs] = []
+
+OptionParser.new do |opts|
+  opts.banner = 'Usage: bubing [options] BINARY DIRECTORY'
+
+  opts.on('-v', '--[no-]verbose', 'Run verbosely') do |v|
+    options[:verbose] = v
+  end
+
+  opts.on('-p', '--plugin LIBRARY',
+          'Add not linked library, eg plugin') do |plugin|
+    options[:plugins] << plugin
+  end
+
+  opts.on('-P', '--plugin_directory PATH',
+          'Add directory with additinal libs, eg plugin directory') do |plugin_dir|
+    options[:plugins_dirs] << plugin_dir
+  end
+end.parse!
+
+if ARGV.count < 2
+  puts 'You must specify binary for bundling and output directory!'
+  exit(1)
+end
+
+directory = File.absolute_path(ARGV.pop)
+filename = File.absolute_path(ARGV.pop)
+
+unless File.exist?(filename)
+  puts "#{filename} does not exists!"
+  exit(1)
+end
+
+if options[:verbose]
+  puts "Bundling #{filename} to #{directory}"
+end
+
+Bubing.bundle!(filename, directory, **options)
