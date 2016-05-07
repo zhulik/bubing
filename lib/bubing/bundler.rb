@@ -10,7 +10,7 @@ module Bubing
     PATH_RE = /=> (.+?(?=\())/
     RUN_TEMPLATE = 'LD_LIBRARY_PATH=./lib ./lib/%{interpreter} ./bin/%{binary}'
 
-    def initialize(binary, directory, plugins: [], plugin_dirs: [], files: [], file_dirs: [], verbose: false)
+    def initialize(binary, directory, plugins: [], plugin_dirs: [], files: [], file_dirs: [], ld_paths: [], verbose: false)
       @binary = binary
       @directory = directory
       @plugins = plugins
@@ -21,6 +21,7 @@ module Bubing
       @interpreter = interpreter(binary)
       @bin_dir = File.join(directory, 'bin')
       @lib_dir = File.join(directory, 'lib')
+      @ld_paths = ld_paths
 
       @copied = []
     end
@@ -66,7 +67,12 @@ module Bubing
     end
 
     def get_deps(file)
-      trace = `LD_TRACE_LOADED_OBJECTS=1 #{@interpreter} #{file}`
+      ld_lib_path = if @ld_paths.any?
+                      "LD_LIBRARY_PATH=#{@ld_paths.join(':')}"
+                    else
+                      ''
+                    end
+      trace = `#{ld_lib_path} LD_TRACE_LOADED_OBJECTS=1 #{@interpreter} #{file}`
       trace.split("\n").map(&:strip).select{|row| row.include?('=>')}.map{|dep| extract_path(dep)}
     end
 
@@ -100,9 +106,9 @@ module Bubing
     end
 
     def copy(files, dst)
-      files = [files].flatten.select{|f| !@copied.include?(File.basename(f))}
+      files = [files].flatten.select{|f| !@copied.include?(f)}
       FileUtils.cp_r(files, dst)
-      @copied += files.map{|f| File.basename(f)}
+      @copied += files
       @copied.flatten
     end
 

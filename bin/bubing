@@ -10,6 +10,8 @@ options[:plugin_dirs] = []
 options[:files] = []
 options[:file_dirs] = []
 
+options[:ld_paths] = []
+
 OptionParser.new do |opts|
   opts.banner = 'Usage: bubing [options] BINARY DIRECTORY'
 
@@ -35,6 +37,11 @@ OptionParser.new do |opts|
   opts.on('-F', '--file_directory PATH=PATH',
           'Add directory with additional files, eg configs') do |file_dir|
     options[:file_dirs] << file_dir
+  end
+
+  opts.on('-L', '--ld_path PATH',
+          'Look dependencies in PATH') do |ld_path|
+    options[:ld_paths] << ld_path
   end
 end.parse!
 
