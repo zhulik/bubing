@@ -21,7 +21,7 @@ OptionParser.new do |opts|
 
   opts.on('-P', '--plugin_directory PATH',
           'Add directory with additinal libs, eg plugin directory') do |plugin_dir|
-    options[:plugins_dirs] << plugin_dir
+    options[:plugin_dirs] << plugin_dir
   end
 end.parse!
 
