@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module Bubing
   class DependencyNotFoundError < StandardError
   end
@@ -20,14 +22,6 @@ module Bubing
       @lib_dir = File.join(directory, 'lib')
       @ld_paths = ld_paths
 
-      @envs = envs.each_with_object({}) do |env, h|
-        k, v = env.split('=')
-        h[k] = v
-      end
-      if @envs['LD_LIBRARY_PATH'].nil?
-        @envs['LD_LIBRARY_PATH'] = './lib'
-      end
-
       @copied = []
     end
 
@@ -37,7 +31,7 @@ module Bubing
       copy_deps(@binary)
       log('Copying plugins...')
       log("Plugins to bundle #{@plugins.count}")
-      copy_plugins
+      copy_plugins(@plugins)
       log("Plugin dirs to bundle #{@plugin_dirs.count}")
       copy_plugin_dirs
       log('Copying files...')
@@ -58,7 +52,9 @@ module Bubing
       FileUtils.mkdir_p(@lib_dir)
     end
 
-    private
+    def log(message)
+      puts message if @verbose
+    end
 
     def extract_path(lib)
       if lib.include?('not found')
@@ -77,10 +73,6 @@ module Bubing
       trace.split("\n").map(&:strip).select{|row| row.include?('=>')}.map{|dep| extract_path(dep)}
     end
 
-    def log(message)
-      puts message if @verbose
-    end
-
     def copy_deps(binary)
       log("Bundling #{binary}")
       deps = get_deps(binary)
@@ -95,8 +87,8 @@ module Bubing
       @copied.flatten
     end
 
-    def copy_plugins
-      @plugins.each do |plugin|
+    def copy_plugins(plugins)
+      plugins.each do |plugin|
         copy(plugin, @lib_dir)
         copy_deps(plugin)
       end
@@ -106,9 +98,7 @@ module Bubing
       @plugin_dirs.each do |plugin_dir|
         copy(plugin_dir, @lib_dir)
         plugins = Dir[File.join(plugin_dir, '/**/*.so')]
-        plugins.each do |plugin|
-          copy_deps(plugin)
-        end
+        copy_plugins(plugins)
       end
     end
 

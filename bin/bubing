@@ -1,7 +1,7 @@
 #!/bin/env ruby
 
 require 'optparse'
-load 'lib/bubing.rb'
+require 'bubing'
 
 options = {}
 options[:plugins] = []
@@ -64,9 +64,7 @@ unless File.exist?(filename)
   exit(1)
 end
 
-if options[:verbose]
-  puts "Bundling #{filename} to #{directory}"
-end
+puts "Bundling #{filename} to #{directory}" if options[:verbose]
 
 begin
   Bubing::BundlerFactory.new.build(filename, directory, **options).bundle!

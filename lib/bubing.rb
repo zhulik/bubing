@@ -1,10 +1,8 @@
-require 'fileutils'
-load 'lib/bubing/binary_info.rb'
-load 'lib/bubing/bundler.rb'
-load 'lib/bubing/executable_bundler.rb'
-load 'lib/bubing/shared_object_bundler.rb'
-load 'lib/bubing/bundler_factory.rb'
+require 'bubing/binary_info'
+require 'bubing/bundler.rb'
+require 'bubing/executable_bundler'
+require 'bubing/shared_object_bundler'
+require 'bubing/bundler_factory'
 
 module Bubing
-
 end

@@ -4,10 +4,10 @@ module Bubing
       info = Bubing::BinaryInfo.new(filename)
       options[:interpreter] = info.interpreter
       case info.type
-        when :executable
-          Bubing::ExecutableBundler.new(filename, directory, **options)
-        when :shared_object
-          Bubing::SharedObjectBundler.new(filename, directory, **options)
+      when :executable
+        Bubing::ExecutableBundler.new(filename, directory, **options)
+      when :shared_object
+        Bubing::SharedObjectBundler.new(filename, directory, **options)
       end
     end
   end

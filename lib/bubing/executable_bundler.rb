@@ -2,9 +2,17 @@ module Bubing
   class ExecutableBundler < Bubing::Bundler
     RUN_TEMPLATE = '%{envs} ./lib/%{interpreter} ./bin/%{binary}'
 
-    def initialize(*args)
+    def initialize(binary, directory, interpreter:, plugins: [], plugin_dirs: [], files: [], file_dirs: [], ld_paths: [], envs: [], verbose: false)
       super
       @bin_dir = File.join(@directory, 'bin')
+
+      @envs = envs.each_with_object({}) do |env, h|
+        k, v = env.split('=')
+        h[k] = v
+      end
+      if @envs['LD_LIBRARY_PATH'].nil?
+        @envs['LD_LIBRARY_PATH'] = './lib'
+      end
     end
 
     def bundle!
