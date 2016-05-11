@@ -2,3 +2,4 @@
 coverage
 *.gem
 spec/fixtures/test_project/build
+.vagrant

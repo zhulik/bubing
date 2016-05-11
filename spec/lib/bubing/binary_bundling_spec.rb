@@ -50,8 +50,8 @@ describe Bubing::Bundler do
 
   context 'with plugins' do
     it 'should bundle plugins' do
-      Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle', plugins: ['/usr/lib/libssh2.so']).bundle!
-      expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libssh2.so'))).to be_truthy
+      Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle', plugins: ['./libltest_project.so']).bundle!
+      expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libltest_project.so'))).to be_truthy
     end
   end
 

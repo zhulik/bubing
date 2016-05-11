@@ -54,7 +54,7 @@ module Bubing
     end
 
     def x86_64_interpreter
-      libs = Dir['/lib/*']
+      libs = Dir['/lib/*'] + Dir['/lib64/*']
       libs.detect { |l| l.include?(X86_64_INTERPRETER) }
     end
   end
