@@ -10,18 +10,18 @@ module Bubing
   class Bundler
     PATH_RE = /=> (.+?(?=\())/
 
-    def initialize(binary, directory, interpreter:, plugins: [], plugin_dirs: [], files: [], file_dirs: [], ld_paths: [], envs: [], verbose: false)
+    def initialize(binary, directory, **options)
       @binary = binary
       @directory = directory
-      @plugins = plugins
-      @plugin_dirs = plugin_dirs
-      @files = files
-      @file_dirs = file_dirs
-      @verbose = verbose
-      @interpreter = interpreter
-      @lib_dir = File.join(directory, 'lib')
-      @ld_paths = ld_paths
+      @interpreter = options[:interpreter]
+      @plugins = options[:plugins] || []
+      @plugin_dirs = options[:plugin_dirs]  || []
+      @files = options[:files]  || []
+      @file_dirs = options[:file_dirs]  || []
+      @ld_paths = options[:ld_paths] || []
+      @verbose = options[:verbose]
 
+      @lib_dir = File.join(directory, 'lib')
       @copied = []
     end
 

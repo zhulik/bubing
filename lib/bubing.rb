@@ -5,4 +5,5 @@ require 'bubing/shared_object_bundler'
 require 'bubing/bundler_factory'
 
 module Bubing
+
 end
