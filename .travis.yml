@@ -1,6 +1,6 @@
 language: ruby
  - sudo apt-get update
- - sudo apt-get install cmake
+ - sudo apt-get install cmake openssh
 rvm:
   - 2.0.0
   - 2.1.0
