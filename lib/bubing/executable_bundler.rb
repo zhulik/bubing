@@ -5,6 +5,7 @@ module Bubing
     def initialize(binary, directory, **options)
       super
       @bin_dir = File.join(@directory, 'bin')
+      @run_script = options[:run_script] || 'run.sh'
 
       @envs = (options[:envs] || []).each_with_object({}) do |env, h|
         k, v = env.split('=')
@@ -19,23 +20,23 @@ module Bubing
       super
       copy(@interpreter, @lib_dir)
       copy(@binary, @bin_dir)
-      log('Preparing run.sh...')
+      log("Preparing #{@run_script}...")
       run_file = make_run
 
       FileUtils.chmod('+x', run_file)
     end
 
     def make_run
-      run_file = File.join(@directory, 'run.sh')
-      envs = @envs.each_with_object([]) do |(k, v), ary|
-        ary << "#{k}=#{v}"
-      end.join(' ')
-      run = RUN_TEMPLATE % {envs: envs, interpreter: File.basename(@interpreter), binary: File.basename(@binary)}
-      File.open(run_file, 'w') do |file|
-        file.write("#!/bin/bash\n")
-        file.write("#{run}\n")
+      File.join(@directory, @run_script).tap do |run_file|
+        envs = @envs.each_with_object([]) do |(k, v), ary|
+          ary << "#{k}=#{v}"
+        end.join(' ')
+        run = RUN_TEMPLATE % {envs: envs, interpreter: File.basename(@interpreter), binary: File.basename(@binary)}
+        File.open(run_file, 'w') do |file|
+          file.write("#!/bin/bash\n")
+          file.write("#{run}\n")
+        end
       end
-      run_file
     end
 
     protected

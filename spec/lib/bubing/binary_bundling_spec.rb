@@ -26,6 +26,13 @@ describe Bubing::Bundler do
           expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nTEST=1 LD_LIBRARY_PATH=./lib ./lib/ld-linux-x86-64.so.2 ./bin/test_project \"$@\"\n")
         end
       end
+
+      context 'with custom run script name' do
+        it 'should be valid' do
+          Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle', run_script: 'execute.sh').bundle!
+          expect(IO.read(File.join('.', 'binary_bundle', 'execute.sh'))).to eq("#!/bin/bash\nLD_LIBRARY_PATH=./lib ./lib/ld-linux-x86-64.so.2 ./bin/test_project \"$@\"\n")
+        end
+      end
     end
   end
 
