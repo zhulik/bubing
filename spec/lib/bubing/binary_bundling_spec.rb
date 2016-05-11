@@ -16,14 +16,14 @@ describe Bubing::Bundler do
       context 'without envs' do
         it 'should be valid' do
           Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle').bundle!
-          expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nLD_LIBRARY_PATH=./lib ./lib/ld-linux-x86-64.so.2 ./bin/test_project\n")
+          expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nLD_LIBRARY_PATH=./lib ./lib/ld-linux-x86-64.so.2 ./bin/test_project \"$@\"\n")
         end
       end
 
       context 'with envs' do
         it 'should be valid' do
           Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle', envs: ['TEST=1']).bundle!
-          expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nTEST=1 LD_LIBRARY_PATH=./lib ./lib/ld-linux-x86-64.so.2 ./bin/test_project\n")
+          expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nTEST=1 LD_LIBRARY_PATH=./lib ./lib/ld-linux-x86-64.so.2 ./bin/test_project \"$@\"\n")
         end
       end
     end

@@ -1,6 +1,6 @@
 module Bubing
   class ExecutableBundler < Bubing::Bundler
-    RUN_TEMPLATE = '%{envs} ./lib/%{interpreter} ./bin/%{binary}'
+    RUN_TEMPLATE = '%{envs} ./lib/%{interpreter} ./bin/%{binary} "$@"'
 
     def initialize(binary, directory, **options)
       super
