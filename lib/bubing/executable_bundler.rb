@@ -7,10 +7,7 @@ module Bubing
       @bin_dir = File.join(@directory, 'bin')
       @run_script = options[:run_script] || 'run.sh'
 
-      @envs = (options[:envs] || []).each_with_object({}) do |env, h|
-        k, v = env.split('=')
-        h[k] = v
-      end
+      @envs = options[:envs] || {}
       if @envs['LD_LIBRARY_PATH'].nil?
         @envs['LD_LIBRARY_PATH'] = './lib'
       end

@@ -11,7 +11,7 @@ options[:files] = {}
 options[:file_dirs] = {}
 
 options[:ld_paths] = []
-options[:envs] = []
+options[:envs] = {}
 
 OptionParser.new do |opts|
   opts.banner = 'Usage: bubing [options] BINARY DIRECTORY'
@@ -20,36 +20,35 @@ OptionParser.new do |opts|
     options[:verbose] = v
   end
 
-  opts.on('-p', '--plugin LIBRARY',
-          'Add not linked library, eg plugin') do |plugin|
+  opts.on('-r', 'Run script name') do |v|
+    options[:run_script] = v
+  end
+
+  opts.on('-p', '--plugin LIBRARY', 'Add not linked library, eg plugin') do |plugin|
     options[:plugins] << plugin
   end
 
-  opts.on('-P', '--plugin_directory PATH',
-          'Add directory with additional libs, eg plugin directory') do |plugin_dir|
+  opts.on('-P', '--plugin_directory PATH', 'Add directory with additional libs, eg plugin directory') do |plugin_dir|
     options[:plugin_dirs] << plugin_dir
   end
 
-  opts.on('-f', '--file FILE=PATH',
-          'Add additional file, eg config') do |file|
+  opts.on('-f', '--file FILE=PATH', 'Add additional file, eg config') do |file|
     from, to = file.split('=').map(&:strip)
     options[:files][from] = to
   end
 
-  opts.on('-F', '--file_directory PATH=PATH',
-          'Add directory with additional files, eg configs') do |file_dir|
-    from, to = file.split('=').map(&:strip)
+  opts.on('-F', '--file_directory PATH=PATH', 'Add directory with additional files, eg configs') do |file_dir|
+    from, to = file_dir.split('=').map(&:strip)
     options[:file_dirs][from] = to
   end
 
-  opts.on('-L', '--ld_path PATH',
-          'Look dependencies in PATH') do |ld_path|
+  opts.on('-L', '--ld_path PATH', 'Look dependencies in PATH') do |ld_path|
     options[:ld_paths] << ld_path
   end
 
-  opts.on('-e', '--env VAR=VAL',
-          'Add environment variable to run.sh') do |env|
-    options[:envs] << env
+  opts.on('-e', '--env VAR=VAL', 'Add environment variable to run.sh') do |env|
+    var, val = env.split('=').map(&:strip)
+    options[:envs][var] = val
   end
 end.parse!
 

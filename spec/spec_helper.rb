@@ -13,7 +13,7 @@ $LOAD_PATH << '../lib'
 RSpec.configure do |config|
   config.order = 'random'
 
-  config.before(:all) do
+  config.before(:suite) do
     Dir.chdir('spec/fixtures/test_project') do
       FileUtils.rm_rf('build')
       FileUtils.mkdir('build')

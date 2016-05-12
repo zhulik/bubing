@@ -76,7 +76,7 @@ module Bubing
     def copy_deps(binary)
       log("Bundling #{binary}")
       deps = get_deps(binary)
-      log("#{deps.count} dependencies found: #{deps}")
+      log("#{deps.count} dependencies found")
       copy(deps, @lib_dir)
     end
 
