@@ -39,7 +39,7 @@ describe Bubing::Bundler do
 
   context 'with files' do
     it 'should bundle' do
-      Bubing::BundlerFactory.new.build(File.expand_path('libltest_project.so'), 'binary_bundle', files: ['CMakeCache.txt=test']).bundle!
+      Bubing::BundlerFactory.new.build(File.expand_path('libltest_project.so'), 'binary_bundle', files: { 'CMakeCache.txt' => 'test' }).bundle!
       expect(File.exist?(File.join('.', 'binary_bundle', 'test', 'CMakeCache.txt'))).to be_truthy
     end
   end

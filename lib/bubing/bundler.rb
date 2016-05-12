@@ -103,12 +103,11 @@ module Bubing
     end
 
     def copy_files(files)
-      files.each do |file|
-        file, dst = file.split('=')
-        dst = File.join(@directory, dst)
+      files.each do |from, to|
+        dst = File.join(@directory, to)
 
         FileUtils.mkdir_p(dst)
-        copy(file, dst)
+        copy(from, dst)
       end
     end
   end
