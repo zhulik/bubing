@@ -60,7 +60,7 @@ module Bubing
       if lib.include?('not found')
         raise DependencyNotFoundError.new(lib.split('=>')[0].strip)
       end
-      File.absolute_path(PATH_RE.match(lib)[1].strip)
+      PATH_RE.match(lib)[1].strip
     end
 
     def get_deps(file)
@@ -70,13 +70,13 @@ module Bubing
                       ''
                     end
       trace = `#{ld_lib_path} LD_TRACE_LOADED_OBJECTS=1 #{@interpreter} #{file}`
-      trace.split("\n").map(&:strip).select{|row| row.include?('=>')}.map{|dep| extract_path(dep)}
+      trace.split("\n").map(&:strip).select{|row| row.include?('=>')}.map{|dep| extract_path(dep)}.reject(&:empty?)
     end
 
     def copy_deps(binary)
       log("Bundling #{binary}")
       deps = get_deps(binary)
-      log("#{deps.count} dependencies found")
+      log("#{deps.count} dependencies found: #{deps}")
       copy(deps, @lib_dir)
     end
 
