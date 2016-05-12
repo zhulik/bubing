@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'bubing'
-  s.version     = '0.1.0'
+  s.version     = '0.1.1'
   s.date        = '2016-05-07'
   s.summary     = 'Script for bundling linux binaries'
   s.description = 'Script for bundling linux binaries'
