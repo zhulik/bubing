@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 describe Bubing do
-  let!(:interpreter) { info = Bubing::BinaryInfo.new(File.expand_path('test_project')).interpreter }
+  let!(:interpreter) { Bubing::BinaryInfo.new(File.expand_path('test_project')).interpreter }
+  let!(:interpreter_name) { File.basename(interpreter) }
 
   it 'creates valid bundle through dsl' do
     Bubing::configure do |c|
@@ -19,10 +20,10 @@ describe Bubing do
 
     expect(File.exist?(File.join('.', 'binary_bundle', 'bin', 'test_project'))).to be_truthy
     expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libm.so.6'))).to be_truthy
-    expect(File.exist?(File.join('.', 'binary_bundle', interpreter))).to be_truthy
+    expect(File.exist?(File.join('.', 'binary_bundle', 'lib', interpreter_name))).to be_truthy
     expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libc.so.6'))).to be_truthy
     expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libgcc_s.so.1'))).to be_truthy
     expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libstdc++.so.6'))).to be_truthy
-    expect(IO.read(File.join('.', 'binary_bundle', 'execute.sh'))).to eq("#!/bin/bash\nTEST=1 LD_LIBRARY_PATH=./lib .#{interpreter} ./bin/test_project \"$@\"\n")
+    expect(IO.read(File.join('.', 'binary_bundle', 'execute.sh'))).to eq("#!/bin/bash\nTEST=1 LD_LIBRARY_PATH=./lib ./lib/#{interpreter_name} ./bin/test_project \"$@\"\n")
   end
 end

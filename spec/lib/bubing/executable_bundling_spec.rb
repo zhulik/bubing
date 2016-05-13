@@ -1,13 +1,15 @@
 require 'spec_helper'
 
 describe Bubing::Bundler do
-  let!(:interpreter) { info = Bubing::BinaryInfo.new(File.expand_path('test_project')).interpreter }
+  let!(:interpreter) { Bubing::BinaryInfo.new(File.expand_path('test_project')).interpreter }
+  let!(:interpreter_name) { File.basename(interpreter) }
+
   context 'without plugins and files' do
     it 'should bundle binary and dependencies' do
       Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle').bundle!
       expect(File.exist?(File.join('.', 'binary_bundle', 'bin', 'test_project'))).to be_truthy
       expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libm.so.6'))).to be_truthy
-      expect(File.exist?(File.join('.', 'binary_bundle', interpreter))).to be_truthy
+      expect(File.exist?(File.join('.', 'binary_bundle', 'lib', interpreter_name))).to be_truthy
       expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libc.so.6'))).to be_truthy
       expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libgcc_s.so.1'))).to be_truthy
       expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libstdc++.so.6'))).to be_truthy
@@ -17,21 +19,21 @@ describe Bubing::Bundler do
       context 'without envs' do
         it 'should be valid' do
           Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle').bundle!
-          expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nLD_LIBRARY_PATH=./lib .#{interpreter} ./bin/test_project \"$@\"\n")
+          expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nLD_LIBRARY_PATH=./lib ./lib/#{interpreter_name} ./bin/test_project \"$@\"\n")
         end
       end
 
       context 'with envs' do
         it 'should be valid' do
           Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle', envs: { 'TEST' => '1' }).bundle!
-          expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nTEST=1 LD_LIBRARY_PATH=./lib .#{interpreter} ./bin/test_project \"$@\"\n")
+          expect(IO.read(File.join('.', 'binary_bundle', 'run.sh'))).to eq("#!/bin/bash\nTEST=1 LD_LIBRARY_PATH=./lib ./lib/#{interpreter_name} ./bin/test_project \"$@\"\n")
         end
       end
 
       context 'with custom run script name' do
         it 'should be valid' do
           Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle', run_script: 'execute.sh').bundle!
-          expect(IO.read(File.join('.', 'binary_bundle', 'execute.sh'))).to eq("#!/bin/bash\nLD_LIBRARY_PATH=./lib .#{interpreter} ./bin/test_project \"$@\"\n")
+          expect(IO.read(File.join('.', 'binary_bundle', 'execute.sh'))).to eq("#!/bin/bash\nLD_LIBRARY_PATH=./lib ./lib/#{interpreter_name} ./bin/test_project \"$@\"\n")
         end
       end
     end
@@ -42,7 +44,7 @@ describe Bubing::Bundler do
       Bubing::BundlerFactory.new.build(File.expand_path('test_project'), 'binary_bundle', ld_paths: ['/usr/']).bundle!
       expect(File.exist?(File.join('.', 'binary_bundle', 'bin', 'test_project'))).to be_truthy
       expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libm.so.6'))).to be_truthy
-      expect(File.exist?(File.join('.', 'binary_bundle', interpreter))).to be_truthy
+      expect(File.exist?(File.join('.', 'binary_bundle', 'lib', interpreter_name))).to be_truthy
       expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libc.so.6'))).to be_truthy
       expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libgcc_s.so.1'))).to be_truthy
       expect(File.exist?(File.join('.', 'binary_bundle', 'lib', 'libstdc++.so.6'))).to be_truthy
