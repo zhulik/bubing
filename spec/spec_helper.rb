@@ -1,9 +1,9 @@
 require 'simplecov'
-require 'coveralls'
+require 'codeclimate-test-reporter'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
     SimpleCov::Formatter::HTMLFormatter,
-    Coveralls::SimpleCov::Formatter
+    CodeClimate::TestReporter::Formatter
 ])
 SimpleCov.start
 require 'bubing'
