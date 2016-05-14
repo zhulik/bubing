@@ -33,8 +33,8 @@ That's all!
 `bubing /bin/vlc vlc_bundle -P /usr/lib/vlc`
 
 This command will create vlc_bundle directory, that contains bin and lib folders and script run.sh for running your app.
-`-P /usr/lib/vlc` flag means that we want to add vlc plugins to our bundle, vlc folder can found as vlc_bundle/lib/vlc, all
-plugin's dependencies will be bundled too.
+`-P /usr/lib/vlc` flag means that we want to add vlc plugins to our bundle, vlc folder can be found as vlc_bundle/lib/vlc, all
+plugin's dependencies will be bundled too. All arguments to run.sh script will be passed to your app.
 
 #### Bundling libraries(libvlc for example)
 
@@ -56,11 +56,28 @@ same way as in executable bundle, include directory will contains copy of /usr/i
 
 ### Bundling through ruby script with DSL
 
-TODO: Write it
+#### vlc example
 
-## Result
+```ruby
+#!/usr/bin/env ruby
 
-TODO: Write it
+require 'bubing'
+
+Bubing::configure do |c|
+  c.binary '/bin/vlc'
+  c.directory 'vlc_bundle'
+#  c.add_plugin '<path to plugin file>'
+  c.add_plugin_dir File.join('', 'lib', 'vlc')
+#  c.add_file '<path to file>', '<relative path in bundle>'
+#  c.add_file_dir '<path to dir>', '<relative path in bundle>'
+  c.add_env 'VARIABLE', 'VALUE'
+#  c.add_ld_path '<additional ld_path>'
+  c.run_script 'vlc.sh'
+  c.verbose!
+end.bundle!
+```
+
+This script describes bundling vlc player in the same way as bundling from CLI.
 
 ## Contributing
 
