@@ -34,7 +34,19 @@ That's all!
 
 This command will create vlc_bundle directory, that contains bin and lib folders and script run.sh for running your app.
 `-P /usr/lib/vlc` flag means that we want to add vlc plugins to our bundle, vlc folder can be found as vlc_bundle/lib/vlc, all
-plugin's dependencies will be bundled too. All arguments to run.sh script will be passed to your app.
+plugin's dependencies will be bundled too. All arguments to run.sh script will be passed to your app. run.sh will contains
+something like this:
+
+```bash
+#!/bin/bash
+LD_LIBRARY_PATH=./lib ./lib/ld-linux-x86-64.so.2 ./bin/vlc "$@"
+```
+
+To run bundler application execute:
+
+`cd vlc_bundle`
+
+`./run.sh`
 
 #### Bundling libraries(libvlc for example)
 
