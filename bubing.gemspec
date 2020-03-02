@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.license     = 'MIT'
 
   s.add_development_dependency 'bundler', '~> 1.12'
-  s.add_development_dependency 'rake', '~> 11.1'
+  s.add_development_dependency 'rake', '~> 12.3'
 
   s.add_development_dependency 'rspec',  '~> 3.4'
   s.add_development_dependency 'codeclimate-test-reporter', '~> 0.5'
